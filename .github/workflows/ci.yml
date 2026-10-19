@@ -1,0 +1,16 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff pandas numpy matplotlib
+      - run: ruff check .
+      - run: python score.py --predictions validation_predictions.csv --december-predictions december-chart-inputs.csv --output-dir "$RUNNER_TEMP/out"
