@@ -42,4 +42,8 @@ Validate the submission files only:
 python score.py --predictions validation_predictions.csv --december-predictions december-chart-inputs.csv
 ```
 
-Note: the `.pkl` files are Python pickles; only load ones you trust.
+> **Warning:** the `.pkl` files in `freight/` are Python pickles. Unpickling can execute arbitrary code, so never load a `.pkl` from an untrusted source or one you did not verify came from this repository. If you modify or replace a model, regenerate it yourself with `python freight/train.py` rather than accepting a pickle from elsewhere. Checking the file hashes against the committed ones (`git diff --stat`) is a quick integrity test.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
