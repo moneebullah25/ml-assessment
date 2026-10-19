@@ -1,25 +1,49 @@
 # Freight Rate Prediction Challenge
 
-See `Freight_Rate_ML_Assessment.pdf` for the assessment instructions.
+Predicts freight load rates (LightGBM + XGBoost ensemble) for the Freight Rate ML assessment, and validates the submission files with the provided scorer.
 
-## What to do
+![score.py validating the predictions and the generated December chart](docs/images/demo.png)
 
-1. Train and validate your model using `data/train_test.csv`.
-2. Predict every load in `data/validation.csv`. Each load has a unique `load_id`.
-3. Fill the matching `predicted_rate` values in `data/validation_predictions_template.csv` and save it as `validation_predictions.csv`.
-4. Predict every row in `data/december_chart_inputs.csv` by filling its `predicted_rate` column.
-5. Install the scorer requirements and run:
+*Real output of `python score.py --predictions validation_predictions.csv --december-predictions december-chart-inputs.csv` and the chart it generates.*
+
+The assessment brief (`Freight_Rate_ML_Assessment.pdf`) is not included in this repository.
+
+## Layout
+
+- `train-test.csv`, `validation.csv`, `validation-predictions-template.csv`, `december-chart-inputs.csv`: challenge data (repo root).
+- `freight/`: `train.py` (Optuna tuning + final fit), `predict.py` (writes predictions and runs the scorer), `features.py`, `config.py`, and the pickled models/statistics.
+- `score.py`: scorer that validates both prediction files and writes `scorer_results/candidate_december.png`.
+- `validation_predictions.csv`: submitted validation predictions.
+
+## Setup
 
 ```bash
-python -m pip install -r requirements.txt
-python score.py --predictions validation_predictions.csv --december-predictions data/december_chart_inputs.csv
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -r freight/requirements.txt
 ```
 
-The scorer validates both files and creates `scorer_results/candidate_december.png`.
+## Usage
 
-## Submit
+Predict with the committed models (overwrites `validation_predictions.csv` and `december-chart-inputs.csv`, then runs the scorer):
 
-- GitHub repository containing your code, dependencies, and run instructions
-- `validation_predictions.csv`
-- PDF or DOCX report containing your validation, data split approach and `candidate_december.png`
-- 2-3 minute Loom link
+```bash
+python freight/predict.py
+```
+
+Retrain from scratch (runs an Optuna search; can take a while):
+
+```bash
+python freight/train.py
+```
+
+Validate the submission files only:
+
+```bash
+python score.py --predictions validation_predictions.csv --december-predictions december-chart-inputs.csv
+```
+
+> **Warning:** the `.pkl` files in `freight/` are Python pickles. Unpickling can execute arbitrary code, so never load a `.pkl` from an untrusted source or one you did not verify came from this repository. If you modify or replace a model, regenerate it yourself with `python freight/train.py` rather than accepting a pickle from elsewhere. Checking the file hashes against the committed ones (`git diff --stat`) is a quick integrity test.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
